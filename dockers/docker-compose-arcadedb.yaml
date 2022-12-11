@@ -1,0 +1,36 @@
+version: "3.3"
+services:
+  arcadedb1:
+    image: "arcadedata/arcadedb:latest"
+    ports:
+      - "2480:2480" # ArcadeDB HTTP
+      - "2424:2424" # ArcadeDB internals
+      - "5432:5432" # Postgres
+      - "6379:6379" # Redis
+      - "8182:8182" # Gremlin
+    volumes:
+      - ./arcadedb1:/home/arcadedb/databases
+    environment:
+      JAVA_OPTS: "\
+      -Darcadedb.server.rootPassword=root_root \
+      -Darcadedb.server.plugins=Postgres:com.arcadedb.postgres.PostgresProtocolPlugin\
+      ,GremlinServer:com.arcadedb.server.gremlin.GremlinServerPlugin\
+      ,Redis:com.arcadedb.redis.RedisProtocolPlugin \
+      -Darcadedb.server.defaultDatabases=test[root] \
+      -Darcadedb.server.name=arcadedb1 \
+      -Darcadedb.ha.enabled=true \
+      -Darcadedb.ha.serverList=arcadedb2:2424 \
+      "
+
+#  arcadedb2:
+#    image: "arcadedata/arcadedb:latest"
+#    volumes:
+#      - ./arcadedb2:/home/arcadedb/databases
+#    environment:
+#      JAVA_OPTS: "\
+#      -Darcadedb.server.rootPassword=root_root
+#      -Darcadedb.server.defaultDatabases=test[root]
+#      -Darcadedb.ha.enabled=true
+#      -Darcadedb.server.name=arcadedb2
+#      -Darcadedb.ha.serverList=arcadedb1:2424
+#      "
